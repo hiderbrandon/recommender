@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  cockroachdb:
+    image: cockroachdb/cockroach:v23.1.11
+    container_name: cockroachdb
+    restart: unless-stopped
+    command: start-single-node --insecure
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+      - "${COCKROACH_UI_PORT}:8080"  # Usa 8082 en el host
+    volumes:
+      - cockroach-data:/cockroach/cockroach-data
+    env_file:
+      - .env
+
+  app:
+    build: .
+    container_name: recommender_app
+    restart: unless-stopped
+    depends_on:
+      - cockroachdb
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - SSL_MODE=${SSL_MODE}
+      - APP_PORT=${APP_PORT}
+
+volumes:
+  cockroach-data:

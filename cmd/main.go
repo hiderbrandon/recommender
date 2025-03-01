@@ -5,6 +5,9 @@ import (
 	"os"
 
 	"recommender/config"
+	"recommender/internal/adapters/handlers"
+	repository "recommender/internal/adapters/repositories"
+	"recommender/internal/core/services"
 	"recommender/routes"
 
 	"github.com/joho/godotenv"
@@ -17,7 +20,13 @@ func main() {
 	}
 
 	config.InitDB()
-	r := routes.SetupRouter()
+
+	// Inyección de dependencias
+	stockRepo := repository.NewCockroachStockRepository()
+	stockService := services.NewStockService(stockRepo)
+	stockHandler := handlers.NewStockHandler(stockService)
+
+	r := routes.SetupRouter(stockHandler)
 
 	// Obtener el puerto desde las variables de entorno
 	port := os.Getenv("APP_PORT")

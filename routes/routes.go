@@ -1,14 +1,15 @@
 package routes
 
 import (
-	"recommender/internal/handlers"
-
-	"github.com/gin-gonic/gin"
+    "github.com/gin-gonic/gin"
+    "recommender/internal/adapters/handlers"
 )
 
-func SetupRouter() *gin.Engine {
-	r := gin.Default()
-	r.GET("/stocks", handlers.GetStocks)
-	r.POST("/stocks", handlers.PostStock)
-	return r
+func SetupRouter(stockHandler *handlers.StockHandler) *gin.Engine {
+    r := gin.Default()
+
+    r.GET("/stocks", stockHandler.GetStocks)
+    r.POST("/stocks", stockHandler.PostStock)
+
+    return r
 }

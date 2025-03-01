@@ -8,7 +8,7 @@ import (
     "github.com/joho/godotenv"
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
-    "recommender/models"
+    "recommender/internal/core/domain"
 )
 
 var DB *gorm.DB
@@ -38,7 +38,7 @@ func InitDB() {
     log.Println("✅ Conectado a la base de datos")
 
     // Migraciones automáticas
-    err = DB.AutoMigrate(&models.Stock{})
+    err = DB.AutoMigrate(&domain.Stock{})
     if err != nil {
         log.Fatal("❌ Error al migrar la base de datos:", err)
     }

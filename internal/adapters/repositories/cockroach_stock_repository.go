@@ -1,24 +1,26 @@
 package repository
 
-
 import (
-    "recommender/config"
-    "recommender/internal/core/domain"
-    "recommender/internal/core/ports"
+	"recommender/internal/core/domain"
+	port "recommender/internal/core/ports"
+
+	"gorm.io/gorm"
 )
 
-type CockroachStockRepository struct{}
+type CockroachStockRepository struct {
+	db *gorm.DB
+}
 
-func NewCockroachStockRepository() port.StockRepository {
-    return &CockroachStockRepository{}
+func NewCockroachStockRepository(db *gorm.DB) port.StockRepository {
+	return &CockroachStockRepository{db: db}
 }
 
 func (r *CockroachStockRepository) GetAll() ([]domain.Stock, error) {
-    var stocks []domain.Stock
-    result := config.DB.Find(&stocks)
-    return stocks, result.Error
+	var stocks []domain.Stock
+	result := r.db.Find(&stocks)
+	return stocks, result.Error
 }
 
 func (r *CockroachStockRepository) Create(stock *domain.Stock) error {
-    return config.DB.Create(stock).Error
+	return r.db.Create(stock).Error
 }

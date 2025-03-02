@@ -19,10 +19,10 @@ func main() {
 		log.Println("⚠ No se pudo cargar el archivo .env, usando variables del sistema")
 	}
 
-	config.InitDB()
+	db:= config.InitDB()
 
 	// Inyección de dependencias
-	stockRepo := repository.NewCockroachStockRepository()
+	stockRepo := repository.NewCockroachStockRepository(db)
 	stockService := services.NewStockService(stockRepo)
 	stockHandler := handlers.NewStockHandler(stockService)
 

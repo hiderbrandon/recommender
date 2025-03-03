@@ -4,6 +4,8 @@ import (
 	"recommender/internal/core/domain"
 	port "recommender/internal/core/ports"
 
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -23,4 +25,13 @@ func (r *CockroachStockRepository) GetAll() ([]domain.Stock, error) {
 
 func (r *CockroachStockRepository) Create(stock *domain.Stock) error {
 	return r.db.Create(stock).Error
+}
+
+func (r *CockroachStockRepository) GetStockByTickerAndTime(ticker string, t time.Time) (*domain.Stock, error) {
+	var stock domain.Stock
+	result := r.db.Where("ticker = ? AND time = ?", ticker, t).First(&stock)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &stock, nil
 }

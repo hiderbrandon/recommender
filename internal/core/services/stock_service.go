@@ -5,6 +5,8 @@ import (
 
 	"recommender/internal/core/domain"
 	"recommender/internal/core/ports"
+
+	"gorm.io/gorm"
 )
 
 type StockService struct {
@@ -20,27 +22,44 @@ func NewStockService(repo ports.StockRepository, apiClient ports.StockAPIClient)
 }
 
 func (s *StockService) FetchAndStoreStocks() error {
+	log.Println("📥 Iniciando importación de datos desde la API externa...")
+
 	nextPage := ""
 	for {
-		response, err := s.apiClient.FetchStocks(nextPage)
+		// Obtener datos de la API externa
+		apiResponse, err := s.apiClient.FetchStocks(nextPage)
 		if err != nil {
 			return err
 		}
 
-		for _, stock := range response.Items {
-			existing, _ := s.repository.GetStockByTickerAndTime(stock.Ticker, stock.Time)
-			if existing.Ticker == "" {
-				if err := s.repository.Create(&stock); err != nil {
-					log.Println("Error saving stock:", err)
+		for _, stock := range apiResponse.Items {
+			// Verificar si el stock ya existe en la base de datos
+			existingStock, err := s.repository.GetStockByTickerAndTime(stock.Ticker, stock.Time)
+			if err != nil && err != gorm.ErrRecordNotFound {
+				return err
+			}
+
+			// Si no existe, lo insertamos
+			if existingStock == nil {
+				err = s.repository.Create(&stock)
+				if err != nil {
+					log.Printf("⚠ Error insertando stock %s: %v\n", stock.Ticker, err)
+				} else {
+					log.Printf("✅ Stock insertado: %s\n", stock.Ticker)
 				}
+			} else {
+				log.Printf("ℹ Stock %s ya existe en la base de datos, ignorando...\n", stock.Ticker)
 			}
 		}
 
-		if response.NextPage == "" {
+		// Si no hay más páginas, terminamos
+		if apiResponse.NextPage == "" {
 			break
 		}
-		nextPage = response.NextPage
+		nextPage = apiResponse.NextPage
 	}
+
+	log.Println("✅ Importación completada.")
 	return nil
 }
 

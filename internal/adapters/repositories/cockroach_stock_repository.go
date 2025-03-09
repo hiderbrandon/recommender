@@ -35,3 +35,9 @@ func (r *CockroachStockRepository) GetStockByTickerAndTime(ticker string, t time
 	}
 	return &stock, nil
 }
+
+func (r *CockroachStockRepository) GetTopStocksByTarget(limit int) ([]domain.Stock, error) {
+	var stocks []domain.Stock
+	result := r.db.Order("target_to DESC").Limit(limit).Find(&stocks)
+	return stocks, result.Error
+}

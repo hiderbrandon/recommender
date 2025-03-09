@@ -10,6 +10,8 @@ func SetupRouter(stockHandler *handlers.StockHandler) *gin.Engine {
 
     r.GET("/stocks", stockHandler.GetStocks)
     r.POST("/stocks", stockHandler.PostStock)
+    r.GET("/stocks/recommendations", stockHandler.GetRecommendations) // Nueva ruta
+
 
     return r
 }

@@ -70,3 +70,7 @@ func (s *StockService) FetchStocks() ([]domain.Stock, error) {
 func (s *StockService) AddStock(stock *domain.Stock) error {
 	return s.repository.Create(stock)
 }
+
+func (s *StockService) GetTopRecommendedStocks(limit int) ([]domain.Stock, error) {
+    return s.repository.GetTopStocksByTarget(limit)
+}

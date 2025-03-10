@@ -74,3 +74,8 @@ func (s *StockService) AddStock(stock *domain.Stock) error {
 func (s *StockService) GetTopRecommendedStocks(limit int) ([]domain.Stock, error) {
     return s.repository.GetTopStocksByTarget(limit)
 }
+
+func (s *StockService) GetStockByTicker(ticker string) (*domain.Stock, error) {
+    return s.repository.GetStockByTicker(ticker)
+}
+

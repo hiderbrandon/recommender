@@ -46,3 +46,16 @@ func (h *StockHandler) GetRecommendations(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, stocks)
 }
+
+func (h *StockHandler) GetStockByTicker(c *gin.Context) {
+    ticker := c.Param("ticker") // Obtener el ticker de la URL
+
+    stock, err := h.service.GetStockByTicker(ticker)
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
+        return
+    }
+
+    c.JSON(http.StatusOK, stock)
+}
+

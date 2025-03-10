@@ -41,3 +41,12 @@ func (r *CockroachStockRepository) GetTopStocksByTarget(limit int) ([]domain.Sto
 	result := r.db.Order("target_to DESC").Limit(limit).Find(&stocks)
 	return stocks, result.Error
 }
+
+func (r *CockroachStockRepository) GetStockByTicker(ticker string) (*domain.Stock, error) {
+    var stock domain.Stock
+    result := r.db.Where("ticker = ?", ticker).First(&stock)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return &stock, nil
+}

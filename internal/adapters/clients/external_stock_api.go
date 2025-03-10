@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"recommender/internal/core/domain"
 	"recommender/internal/core/ports"
 	"strings"
 	"time"
@@ -32,7 +33,7 @@ func NewExternalStockAPI() ports.StockAPIClient {
 	}
 }
 
-func (a *ExternalStockAPI) FetchStocks(nextPage string) (*ports.APIResponse, error) {
+func (a *ExternalStockAPI) FetchStocks(nextPage string) (*domain.APIResponse, error) {
 	url := a.baseURL
 	if nextPage != "" {
 		url = fmt.Sprintf("%s?next_page=%s", a.baseURL, nextPage)
@@ -58,7 +59,7 @@ func (a *ExternalStockAPI) FetchStocks(nextPage string) (*ports.APIResponse, err
 		return nil, fmt.Errorf("API returned status: %d", resp.StatusCode)
 	}
 
-	var apiResponse ports.APIResponse
+	var apiResponse domain.APIResponse
 	if err := json.NewDecoder(resp.Body).Decode(&apiResponse); err != nil {
 		return nil, err
 	}

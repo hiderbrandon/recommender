@@ -14,3 +14,8 @@ type Stock struct {
 	TargetTo   string    `json:"target_to"`
 	Time       time.Time `json:"time"`
 }
+
+type APIResponse struct {
+	Items    []Stock `json:"items"`
+	NextPage string  `json:"next_page"`
+}

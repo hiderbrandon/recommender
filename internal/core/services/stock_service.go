@@ -6,6 +6,8 @@ import (
 	"recommender/internal/core/domain"
 	"recommender/internal/core/ports"
 
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -26,29 +28,43 @@ func (s *StockService) FetchAndStoreStocks() error {
 
 	nextPage := ""
 	for {
-		// Obtener datos de la API externa
-		apiResponse, err := s.apiClient.FetchStocks(nextPage)
-		if err != nil {
-			return err
-		}
+		var err error
+		var apiResponse *domain.APIResponse
 
-		for _, stock := range apiResponse.Items {
-			// Verificar si el stock ya existe en la base de datos
-			existingStock, err := s.repository.GetStockByTickerAndTime(stock.Ticker, stock.Time)
-			if err != nil && err != gorm.ErrRecordNotFound {
-				return err
+		// Reintentar hasta 3 veces en caso de fallo
+		for attempts := 1; attempts <= 3; attempts++ {
+			apiResponse, err = s.apiClient.FetchStocks(nextPage)
+			if err == nil {
+				break
 			}
 
-			// Si no existe, lo insertamos
+			log.Printf("⚠ Error en FetchStocks (Intento %d/3): %v", attempts, err)
+			time.Sleep(time.Duration(attempts) * time.Second)
+		}
+
+		if err != nil {
+			log.Printf("❌ Falló la importación de stocks en la página '%s' después de 3 intentos. Continuando con la siguiente...", nextPage)
+			nextPage = "" // Forzar fin del bucle si hay fallo total
+			continue
+		}
+
+		// Procesar los datos obtenidos
+		for _, stock := range apiResponse.Items {
+			existingStock, err := s.repository.GetStockByTickerAndTime(stock.Ticker, stock.Time)
+			if err != nil && err != gorm.ErrRecordNotFound {
+				log.Printf("⚠ Error verificando existencia de %s: %v", stock.Ticker, err)
+				continue
+			}
+
 			if existingStock == nil {
 				err = s.repository.Create(&stock)
 				if err != nil {
-					log.Printf("⚠ Error insertando stock %s: %v\n", stock.Ticker, err)
+					log.Printf("⚠ Error insertando stock %s: %v", stock.Ticker, err)
 				} else {
-					log.Printf("✅ Stock insertado: %s\n", stock.Ticker)
+					log.Printf("✅ Stock insertado: %s", stock.Ticker)
 				}
 			} else {
-				log.Printf("ℹ Stock %s ya existe en la base de datos, ignorando...\n", stock.Ticker)
+				log.Printf("ℹ Stock %s ya existe en la base de datos, ignorando...", stock.Ticker)
 			}
 		}
 
@@ -72,10 +88,9 @@ func (s *StockService) AddStock(stock *domain.Stock) error {
 }
 
 func (s *StockService) GetTopRecommendedStocks(limit int) ([]domain.Stock, error) {
-    return s.repository.GetTopStocksByTarget(limit)
+	return s.repository.GetTopStocksByTarget(limit)
 }
 
 func (s *StockService) GetStockByTicker(ticker string) (*domain.Stock, error) {
-    return s.repository.GetStockByTicker(ticker)
+	return s.repository.GetStockByTicker(ticker)
 }
-

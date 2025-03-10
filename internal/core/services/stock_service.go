@@ -79,8 +79,8 @@ func (s *StockService) FetchAndStoreStocks() error {
 	return nil
 }
 
-func (s *StockService) FetchStocks() ([]domain.Stock, error) {
-	return s.repository.GetAll()
+func (s *StockService) FetchStocks(limit, offset int) ([]domain.Stock, error) {
+	return s.repository.GetAll(limit, offset)
 }
 
 func (s *StockService) AddStock(stock *domain.Stock) error {

@@ -17,9 +17,9 @@ func NewCockroachStockRepository(db *gorm.DB) port.StockRepository {
 	return &CockroachStockRepository{db: db}
 }
 
-func (r *CockroachStockRepository) GetAll() ([]domain.Stock, error) {
+func (r *CockroachStockRepository) GetAll(limit, offset int) ([]domain.Stock, error) {
 	var stocks []domain.Stock
-	result := r.db.Find(&stocks)
+	result := r.db.Limit(limit).Offset(offset).Find(&stocks) // ✅ Aplica paginación
 	return stocks, result.Error
 }
 
@@ -43,10 +43,10 @@ func (r *CockroachStockRepository) GetTopStocksByTarget(limit int) ([]domain.Sto
 }
 
 func (r *CockroachStockRepository) GetStockByTicker(ticker string) (*domain.Stock, error) {
-    var stock domain.Stock
-    result := r.db.Where("ticker = ?", ticker).First(&stock)
-    if result.Error != nil {
-        return nil, result.Error
-    }
-    return &stock, nil
+	var stock domain.Stock
+	result := r.db.Where("ticker = ?", ticker).First(&stock)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &stock, nil
 }

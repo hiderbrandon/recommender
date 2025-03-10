@@ -6,7 +6,7 @@ import (
 )
 
 type StockRepository interface {
-	GetAll() ([]domain.Stock, error)
+	GetAll(limit, offset int) ([]domain.Stock, error)
 	Create(stock *domain.Stock) error
 	GetStockByTickerAndTime(ticker string, t time.Time) (*domain.Stock, error)
 	GetTopStocksByTarget(limit int) ([]domain.Stock, error)

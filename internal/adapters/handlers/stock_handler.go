@@ -5,6 +5,7 @@ import (
 	"recommender/internal/core/domain"
 	"recommender/internal/core/services"
 
+	"strconv"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,11 +18,30 @@ func NewStockHandler(service *services.StockService) *StockHandler {
 }
 
 func (h *StockHandler) GetStocks(c *gin.Context) {
-	stocks, err := h.service.FetchStocks()
+	// Leer parámetros de la query
+	limit := 10 // Valor por defecto
+	offset := 0 // Valor por defecto
+
+	if l, exists := c.GetQuery("limit"); exists {
+		parsedLimit, err := strconv.Atoi(l)
+		if err == nil && parsedLimit > 0 {
+			limit = parsedLimit
+		}
+	}
+
+	if o, exists := c.GetQuery("offset"); exists {
+		parsedOffset, err := strconv.Atoi(o)
+		if err == nil && parsedOffset >= 0 {
+			offset = parsedOffset
+		}
+	}
+
+	stocks, err := h.service.FetchStocks(limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve stocks"})
 		return
 	}
+
 	c.JSON(http.StatusOK, stocks)
 }
 
@@ -48,14 +68,13 @@ func (h *StockHandler) GetRecommendations(c *gin.Context) {
 }
 
 func (h *StockHandler) GetStockByTicker(c *gin.Context) {
-    ticker := c.Param("ticker") // Obtener el ticker de la URL
+	ticker := c.Param("ticker") // Obtener el ticker de la URL
 
-    stock, err := h.service.GetStockByTicker(ticker)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
-        return
-    }
+	stock, err := h.service.GetStockByTicker(ticker)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Stock not found"})
+		return
+	}
 
-    c.JSON(http.StatusOK, stock)
+	c.JSON(http.StatusOK, stock)
 }
-

@@ -10,8 +10,8 @@ type Stock struct {
 	Action     string    `json:"action"`
 	RatingFrom string    `json:"rating_from"`
 	RatingTo   string    `json:"rating_to"`
-	TargetFrom string    `json:"target_from"`
-	TargetTo   string    `json:"target_to"`
+	TargetFrom float64   `json:"target_from"`
+	TargetTo   float64   `json:"target_to"`
 	Time       time.Time `json:"time"`
 }
 

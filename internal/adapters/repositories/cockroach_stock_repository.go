@@ -50,3 +50,15 @@ func (r *CockroachStockRepository) GetStockByTicker(ticker string) (*domain.Stoc
 	}
 	return &stock, nil
 }
+
+func (r *CockroachStockRepository) GetRecentStocks(limit int) ([]domain.Stock, error) {
+	var stocks []domain.Stock
+	err := r.db.Where("time >= NOW() - INTERVAL '30 days'").
+		Order("target_to DESC, time DESC").
+		Limit(limit).
+		Find(&stocks).Error
+	if err != nil {
+		return nil, err
+	}
+	return stocks, nil
+}

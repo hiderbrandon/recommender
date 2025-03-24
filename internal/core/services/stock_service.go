@@ -1,14 +1,15 @@
 package services
 
 import (
-	"sort"
-	"math"
 	"log"
+	"math"
+	"sort"
 
 	"recommender/internal/core/domain"
 	"recommender/internal/core/ports"
 
 	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -120,7 +121,6 @@ func (s *StockService) GetTopRecommendedStocks(limit int) ([]domain.Stock, error
 	return topStocks, nil
 }
 
-
 func (s *StockService) GetStockByTicker(ticker string) (*domain.Stock, error) {
 	return s.repository.GetStockByTicker(ticker)
 }
@@ -133,9 +133,9 @@ func calculateScore(stock domain.Stock) float64 {
 
 	// 2. Cambio en la calificación
 	ratingMap := map[string]int{
-		"Sell":   -1,
+		"Sell":    -1,
 		"Neutral": 0,
-		"Buy":    1,
+		"Buy":     1,
 	}
 
 	ratingFrom, okFrom := ratingMap[stock.RatingFrom]
@@ -149,9 +149,9 @@ func calculateScore(stock domain.Stock) float64 {
 	ratingScore := 0.0
 	switch ratingChange {
 	case 2:
-		ratingScore = 3  // Sell -> Buy
+		ratingScore = 3 // Sell -> Buy
 	case 1:
-		ratingScore = 2  // Neutral -> Buy
+		ratingScore = 2 // Neutral -> Buy
 	case -1:
 		ratingScore = -2 // Buy -> Neutral
 	case -2:

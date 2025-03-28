@@ -125,55 +125,44 @@ func (s *StockService) GetStockByTicker(ticker string) (*domain.Stock, error) {
 	return s.repository.GetStockByTicker(ticker)
 }
 
+// calculateScore ahora delega responsabilidades a subfunciones.
 func calculateScore(stock domain.Stock) float64 {
-	// 1. Cambio en el precio objetivo
-	targetFrom := stock.TargetFrom
-	targetTo := stock.TargetTo
-	targetChange := (targetTo - targetFrom) / targetFrom
+	priceImpact := calculatePriceImpact(stock)
+	ratingImpact := calculateRatingImpact(stock)
+	brokerageWeight := getBrokerageWeight(stock.Brokerage)
 
-	// 2. Cambio en la calificación
-	ratingMap := map[string]int{
-		"Sell":    -1,
+	return (priceImpact + ratingImpact) * brokerageWeight
+}
+
+// calculatePriceImpact calcula el impacto por cambio de precio
+func calculatePriceImpact(stock domain.Stock) float64 {
+	percentageChange := (stock.TargetTo - stock.TargetFrom) / stock.TargetFrom * 100
+	return math.Round(percentageChange*100) / 100 // Redondeo a dos decimales
+}
+
+// calculateRatingImpact evalúa el impacto por cambio de rating
+func calculateRatingImpact(stock domain.Stock) float64 {
+	ratingScores := map[string]float64{
+		"Sell":    -2,
 		"Neutral": 0,
-		"Buy":     1,
+		"Buy":     2,
 	}
+	fromScore := ratingScores[stock.RatingFrom]
+	toScore := ratingScores[stock.RatingTo]
+	return toScore - fromScore
+}
 
-	ratingFrom, okFrom := ratingMap[stock.RatingFrom]
-	ratingTo, okTo := ratingMap[stock.RatingTo]
-
-	ratingChange := 0
-	if okFrom && okTo {
-		ratingChange = ratingTo - ratingFrom
-	}
-
-	ratingScore := 0.0
-	switch ratingChange {
-	case 2:
-		ratingScore = 3 // Sell -> Buy
-	case 1:
-		ratingScore = 2 // Neutral -> Buy
-	case -1:
-		ratingScore = -2 // Buy -> Neutral
-	case -2:
-		ratingScore = -3 // Buy -> Sell
-	}
-
-	// 3. Peso del bróker
-	brokerWeights := map[string]float64{
+// getBrokerageWeight devuelve el peso asociado a la corredora
+func getBrokerageWeight(brokerage string) float64 {
+	weights := map[string]float64{
 		"The Goldman Sachs Group": 1.5,
 		"JP Morgan":               1.4,
+		"Morgan Stanley":          1.3,
+		"Others":                  1.0,
 	}
-	brokerWeight, exists := brokerWeights[stock.Brokerage]
+	weight, exists := weights[brokerage]
 	if !exists {
-		brokerWeight = 1.0
+		return weights["Others"]
 	}
-
-	// 4. Recencia de la recomendación
-	now := time.Now().UTC()
-	daysOld := now.Sub(stock.Time).Hours() / 24
-	timeWeight := math.Max(0.5, 1-(daysOld/30)) // Reduce el peso si la recomendación es vieja
-
-	// Fórmula de puntuación
-	score := (targetChange*10 + ratingScore) * brokerWeight * timeWeight
-	return score
+	return weight
 }

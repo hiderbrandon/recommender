@@ -8,5 +8,5 @@ type APIResponse struct {
 }
 
 type StockAPIClient interface {
-	FetchStocks(nextPage string) (*APIResponse, error)
+	FetchStocks(nextPage string) (*domain.APIResponse, error)
 }

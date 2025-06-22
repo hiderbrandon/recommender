@@ -38,4 +38,4 @@ jobs:
       - name: Run SonarCloud scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run:
+        run: sonar-scanner

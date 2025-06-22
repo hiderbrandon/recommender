@@ -1,48 +1,39 @@
 # Levantar entorno de desarrollo
 ## correr proyecto proyecto en  local
 
-1. agregar .env al archivo raiz (buscar en drive del grupo)
+1. agregar .env al archivo raiz ([buscar en drive del grupo)](https://drive.google.com/drive/u/2/folders/1W0yLxniB3MZg-YSfSXnIQl65ZBLRV1ms) )
 2. correr docker-compose del proyecto
 ```bash
 sudo docker system prune -a --volumes // elimina persistencia de ejecuciones anteriores (opcional)      
 sudo docker-compose up -d         # backend
 ```
-## ver pruebas pruebas en local :
 
-3. correr el docker-compose de sonarqube
-```bash
-sudo docker-compose -f docker-compose.sonarqube.yml up -d
-```
+## Análisis de calidad con SonarCloud
 
-4. optener token de sonarqube como muestra [el laboratorio](https://docs.google.com/document/d/1M4jfM4QFLrdFof22xvSUrf-4OPilO0gvXoNjAB5STLA/edit?tab=t.0) y ponerlo en .env "SONAR_TOKEN" 
-5. correr sonar scanner en la raiz del proyecto 
-### en linux
-```
-docker run --rm \
-  --env-file .env \
-  -e SONAR_HOST_URL="http://172.17.0.1:9000" \
-  -v "$(pwd):/usr/src" \
-  sonarsource/sonar-scanner-cli
+El proyecto está configurado para enviar análisis de calidad de código automáticamente a **SonarCloud** usando GitHub Actions.
 
-```
+### ¿Qué se analiza?
+- Complejidad ciclomática
+- Duplicación de código
+- Cobertura de pruebas (debe ser >60%)
+- Code smells y deuda técnica
 
-### en windows docker-desktop
-```
-docker run --rm \
-  --env-file .env \
-  -e SONAR_HOST_URL="http://host.docker.internal:9000" \
-  -v "$(pwd):/usr/src" \
-  sonarsource/sonar-scanner-cli
-```
+### ¿Cómo se ejecuta?
 
-5. visualizar proyecto en [sonarqube GUI](http://localhost:9000/dashboard?id=recommender&codeScope=overall) para ver reportes
+Cada vez que haces `push` o un `pull request`, GitHub Actions ejecuta automáticamente el análisis y lo envía a SonarCloud.
+
+### Ver resultados
+
+Puedes consultar los resultados en:
+
+🔗 [https://sonarcloud.io/project/overview?id=hiderbrandon_recommender](https://sonarcloud.io/project/overview?id=hiderbrandon_recommender)
+
+---
+
+**Nota**: No es necesario correr nada manualmente para esto.
 
 
 
-## ver covertura (en CLI)
-```
-go tool cover -func=coverage.out
-```
 
 ## cerrar  royecto 
 ```

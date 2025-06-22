@@ -1,7 +1,7 @@
 # Levantar entorno de desarrollo
 ## correr proyecto proyecto en  local
 
-1. agregar .env al archivo raiz (buscar en drive del grupo)
+1. agregar .env al archivo raiz ([buscar en drive del grupo)](https://drive.google.com/drive/u/2/folders/1W0yLxniB3MZg-YSfSXnIQl65ZBLRV1ms) )
 2. correr docker-compose del proyecto
 ```bash
 sudo docker system prune -a --volumes // elimina persistencia de ejecuciones anteriores (opcional)      

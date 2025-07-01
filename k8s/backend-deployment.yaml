@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommender-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: recommender
+  template:
+    metadata:
+      labels:
+        app: recommender
+    spec:
+      containers:
+      - name: backend
+        image: hiderbrandon/recommender-app:latest
+        ports:
+        - containerPort: 8080  # Asegúrate que tu app escucha en este puerto
+        env:
+          - name: DB_HOST
+            value: "cockroachdb"
+          - name: DB_PORT
+            value: "26257"
+          - name: DB_USER
+            value: "root"
+          - name: DB_PASSWORD
+            value: ""
+          - name: DB_NAME
+            value: "stocks"
+          - name: SSL_MODE
+            value: "disable"
+          - name: API_URL
+            value: "https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/swechallenge/list"
+          - name: API_KEY
+            value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdHRlbXB0cyI6MiwiZW1haWwiOiJoaWRlcmJyYW5kb25AZ21haWwuY29tIiwiZXhwIjoxNzQwNzAwMTI0LCJpZCI6IjAiLCJwYXNzd29yZCI6IicgT1IgJzEnPScxIn0.EdxGZ7Harp-xa0kz1sSODsneINvTxqQP-P9hGydZFLw"
+          - name: APP_PORT
+            value: "8080"
+          - name: FRONTEND_URL
+            value: "http://localhost:5173"
+
+

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cockroachdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cockroachdb
+  template:
+    metadata:
+      labels:
+        app: cockroachdb
+    spec:
+      containers:
+      - name: cockroachdb
+        image: cockroachdb/cockroach:v23.1.11
+        command: ["cockroach"]
+        args: ["start-single-node", "--insecure"]
+        ports:
+          - containerPort: 26257  # puerto SQL
+          - containerPort: 8080   # puerto UI
+        volumeMounts:
+          - mountPath: /cockroach/cockroach-data
+            name: cockroach-storage
+      volumes:
+        - name: cockroach-storage
+          emptyDir: {}

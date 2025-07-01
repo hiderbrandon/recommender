@@ -34,8 +34,18 @@ jobs:
           unzip sonar-scanner-cli-*.zip
           mv sonar-scanner-*/ sonar-scanner
           echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
-
+          
       - name: Run SonarCloud scanner
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: sonar-scanner
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Necesario para PRs
+        run: |
+          go install github.com/boumenot/gocover-cobertura@latest
+          gocover-cobertura < coverage.out > coverage.xml
+          sonar-scanner \
+          -Dsonar.go.coverage.reportPaths=coverage.xml \
+          -Dsonar.go.tests.reportPaths=report.json \
+          -Dsonar.sources=. \
+          -Dsonar.tests=. \
+          -Dsonar.test.inclusions=**/*_test.go \
+          -Dsonar.exclusions=**/*_test.go,vendor/**,mocks/**

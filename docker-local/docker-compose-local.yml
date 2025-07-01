@@ -13,8 +13,9 @@ services:
       - cockroach-data:/cockroach/cockroach-data
     env_file:
       - .env
+
   app:
-    image: hiderbrandon/recommender-app:latest  # Reemplaza con tu imagen en Docker Hub
+    build: .
     container_name: recommender_app
     restart: unless-stopped
     depends_on:
@@ -23,5 +24,14 @@ services:
       - .env
     ports:
       - "${APP_PORT}:${APP_PORT}"
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - SSL_MODE=${SSL_MODE}
+      - APP_PORT=${APP_PORT}
+
 volumes:
   cockroach-data:

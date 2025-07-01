@@ -31,11 +31,29 @@ Puedes consultar los resultados en:
 ---
 
 **Nota**: No es necesario correr nada manualmente para esto.
+---
 
+## Ejecutar con Docker Compose en entorno local 
 
+1. Clona este repositorio.
+2. Crea un archivo `.env` con las variables necesarias (ejemplo abajo).
+3. Ejecuta:
+   ```bash
+   docker-compose up -d
+   ```
 
-
-## cerrar  royecto 
+## Ejemplo de Variables de Entorno
+```
+DB_PORT=26257
+COCKROACH_UI_PORT=8082
+APP_PORT=8080
+DB_HOST=cockroachdb
+DB_USER=root
+DB_PASSWORD=
+DB_NAME=defaultdb
+SSL_MODE=disable 
+```
+## cerrar  Proyecto 
 ```
 sudo docker-compose down --rmi all -v --remove-orphans
 

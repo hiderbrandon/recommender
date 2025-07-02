@@ -32,3 +32,4 @@ someusefullScripts.sh
 restart-containers
 .scannerwork/.sonar_lock
 .scannerwork/report-task.txt
+package-lock.json

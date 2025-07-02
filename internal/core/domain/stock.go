@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Stock struct {
-	ID         uint      `json:"id"`
+	ID         uint      `json:"id" gorm:"primaryKey"`
 	Ticker     string    `json:"ticker"`
 	Company    string    `json:"company"`
 	Brokerage  string    `json:"brokerage"`

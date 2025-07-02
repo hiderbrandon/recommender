@@ -8,7 +8,7 @@ services:
     command: start-single-node --insecure
     ports:
       - "${DB_PORT}:${DB_PORT}"
-      - "${COCKROACH_UI_PORT}:8080"  # Usa 8082 en el host
+      - "${COCKROACH_UI_PORT}:8080"  
     volumes:
       - cockroach-data:/cockroach/cockroach-data
     env_file:

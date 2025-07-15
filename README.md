@@ -59,3 +59,20 @@ sudo docker-compose down --rmi all -v --remove-orphans
 
 ```
 
+### Mostrar estado del cluster 
+```
+kubectl get pods
+kubectl get svc
+
+kubectl describe pod recommender-backend-6dbd4fcc8c-drpmm | grep Image
+
+```
+### hacer cualqquier cambio en el codigo 
+## probarr nuevo despliegue 
+```
+kubectl get nodes -o wide
+
+curl --location 'http://54.144.92.33:30080/stocks'
+
+```
+

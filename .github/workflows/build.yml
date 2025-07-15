@@ -62,4 +62,29 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: hiderbrandon/recommender-app:latest
+          tags: |
+            hiderbrandon/recommender-app:latest
+            hiderbrandon/recommender-app:${{ github.sha }}
+            hiderbrandon/recommender-app:${{ github.run_number }}
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: [test-and-analyze, docker]
+    if: github.ref == 'refs/heads/main'  # Solo en main
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Kubernetes
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy to Cluster
+        run: |
+          kubectl config set-cluster my-cluster --server=${{ secrets.K8S_SERVER }} --insecure-skip-tls-verify
+          kubectl config set-credentials ci-user --token=${{ secrets.K8S_TOKEN }}
+          kubectl config set-context ci-context --cluster=my-cluster --user=ci-user
+          kubectl config use-context ci-context
+
+          kubectl set image deployment/recommender-backend backend=hiderbrandon/recommender-app:${{ github.sha }} -n default
+          kubectl rollout status deployment/recommender-backend -n default

@@ -4,6 +4,11 @@ metadata:
   name: recommender-backend
 spec:
   replicas: 2
+  strategy:                  # ¡Nueva sección agregada!
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1           # Máximo de pods adicionales durante la actualización
+      maxUnavailable: 0     # Cero pods inactivos durante el update (0 downtime)
   selector:
     matchLabels:
       app: recommender
@@ -16,8 +21,13 @@ spec:
       - name: backend
         image: hiderbrandon/recommender-app:latest
         ports:
-        - containerPort: 8080  # Asegúrate que tu app escucha en este puerto
+        - containerPort: 8080 
         env:
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: backend-secrets
+                key: API_KEY
           - name: DB_HOST
             value: "cockroachdb"
           - name: DB_PORT
@@ -32,8 +42,6 @@ spec:
             value: "disable"
           - name: API_URL
             value: "https://8j5baasof2.execute-api.us-west-2.amazonaws.com/production/swechallenge/list"
-          - name: API_KEY
-            value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdHRlbXB0cyI6MiwiZW1haWwiOiJoaWRlcmJyYW5kb25AZ21haWwuY29tIiwiZXhwIjoxNzQwNzAwMTI0LCJpZCI6IjAiLCJwYXNzd29yZCI6IicgT1IgJzEnPScxIn0.EdxGZ7Harp-xa0kz1sSODsneINvTxqQP-P9hGydZFLw"
           - name: APP_PORT
             value: "8080"
           - name: FRONTEND_URL
